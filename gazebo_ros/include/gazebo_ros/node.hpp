@@ -16,6 +16,7 @@
 #define GAZEBO_ROS__NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_components/node_instance_wrapper.hpp>
 
 #include <gazebo_ros/executor.hpp>
 #include <gazebo_ros/component_manager.hpp>
@@ -235,8 +236,9 @@ Node::SharedPtr Node::CreateWithArgs(Args && ... args)
     node->add_on_set_parameters_callback(param_change_callback);
 
   // Add new node to the executor so its callbacks are called
-  node->executor_->add_node(node);
-  //node->mgr_->add_node_to_executor(node->get_node_base_interface());
+  //node->executor_->add_node(node);
+  auto inst = rclcpp_components::NodeInstanceWrapper(node, std::bind(&Node::get_node_base_interface, node));
+  node->mgr_->add_node_to_executor(inst);
   
   return node;
 }
