@@ -27,6 +27,7 @@ namespace gazebo_ros
 
 std::weak_ptr<Executor> Node::static_executor_;
 std::weak_ptr<Node> Node::static_node_;
+std::weak_ptr<ComponentManager> Node::static_node_mgr_;
 std::mutex Node::lock_;
 ExistingNodes Node::static_existing_nodes_;
 
@@ -36,6 +37,8 @@ Node::~Node()
 
   // remove node object from global map
   static_existing_nodes_.remove_node(this->get_fully_qualified_name());
+  // FIXME detect when last plugin is removed and destroy controller manager
+  // question -> what would happen to any externally-loaded component?
 }
 
 Node::SharedPtr Node::Get(sdf::ElementPtr sdf, std::string node_name)
@@ -131,6 +134,7 @@ Node::SharedPtr Node::Get(sdf::ElementPtr sdf, std::string node_name)
   rclcpp::NodeOptions node_options;
   node_options.arguments(arguments);
   node_options.parameter_overrides(parameter_overrides);
+  node_options.use_intra_process_comms(true);
 
   // Create node with parsed arguments
   std::shared_ptr<gazebo_ros::Node> node = CreateWithArgs(name, ns, node_options);

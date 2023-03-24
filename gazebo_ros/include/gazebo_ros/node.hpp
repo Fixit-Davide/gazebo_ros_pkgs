@@ -18,6 +18,7 @@
 #include <rclcpp/rclcpp.hpp>
 
 #include <gazebo_ros/executor.hpp>
+#include <gazebo_ros/component_manager.hpp>
 #include <gazebo_ros/node_visibility_control.h>
 #include <gazebo_ros/qos.hpp>
 
@@ -143,6 +144,8 @@ private:
   /// executor thread is too
   std::shared_ptr<Executor> executor_;
 
+  std::shared_ptr<ComponentManager> mgr_;
+
   /// QoS for node entities
   gazebo_ros::QoS qos_;
 
@@ -157,6 +160,8 @@ private:
 
   /// Points to a #gazebo_ros::Node which can be shared among several plugins.
   static std::weak_ptr<Node> static_node_;
+
+  static std::weak_ptr<ComponentManager> static_node_mgr_;
 
   /// Gets a logger to log information internal to the node
   static rclcpp::Logger internal_logger();
@@ -185,6 +190,14 @@ Node::SharedPtr Node::CreateWithArgs(Args && ... args)
   if (!node->executor_) {
     node->executor_ = std::make_shared<Executor>();
     static_executor_ = node->executor_;
+  }
+
+  node->mgr_ = static_node_mgr_.lock();
+
+  if (!node->mgr_) {
+    node->mgr_ = std::make_shared<ComponentManager>(node->executor_);
+    static_node_mgr_ = node->mgr_;
+    node->executor_->add_node(node->mgr_);
   }
 
   // Generate warning on start up if use_sim_time parameter is set to false
@@ -223,7 +236,8 @@ Node::SharedPtr Node::CreateWithArgs(Args && ... args)
 
   // Add new node to the executor so its callbacks are called
   node->executor_->add_node(node);
-
+  //node->mgr_->add_node_to_executor(node->get_node_base_interface());
+  
   return node;
 }
 

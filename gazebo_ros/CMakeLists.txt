@@ -28,6 +28,7 @@ find_package(gazebo_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rcl REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_components REQUIRED)
 find_package(rmw REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(tinyxml_vendor REQUIRED)
@@ -57,6 +58,7 @@ endif()
 ament_target_dependencies(gazebo_ros_node
   "gazebo_dev"
   "rclcpp"
+  "rclcpp_components"
   "rcl"
   "rmw"
 )
@@ -155,20 +157,8 @@ target_link_libraries(gazebo_ros_force_system
 ament_export_libraries(gazebo_ros_force_system)
 
 ament_export_include_directories(include)
-ament_export_dependencies(rclcpp)
-ament_export_dependencies(gazebo_dev)
+ament_export_dependencies(rclcpp rclcpp_components gazebo_dev)
 
-if(BUILD_TESTING)
-  add_subdirectory(test)
-  find_package(ament_lint_auto REQUIRED)
-  list(APPEND AMENT_LINT_AUTO_EXCLUDE
-    ament_cmake_cpplint
-  )
-  ament_lint_auto_find_test_dependencies()
-  ament_cpplint(
-    FILTERS -build/include_order
-  )
-endif()
 
 ament_package()
 

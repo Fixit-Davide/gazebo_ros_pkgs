@@ -27,6 +27,7 @@
   <depend>gazebo_msgs</depend>
   <depend>rcl</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>rclpy</depend>
   <depend>rmw</depend>
   <depend>std_srvs</depend>

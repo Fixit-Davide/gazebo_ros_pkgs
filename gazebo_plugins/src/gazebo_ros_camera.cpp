@@ -714,8 +714,8 @@ void GazeboRosCamera::OnNewDepthFrame(
 
   sensor_msgs::PointCloud2Modifier cloud_modifier(impl_->cloud_msg_);
   cloud_modifier.setPointCloud2FieldsByString(2, "xyz", "rgb");
-  cloud_modifier.resize(_width * _height);
-
+  
+  impl_->cloud_msg_.data.resize(_width * _height * impl_->cloud_msg_.point_step);
   impl_->cloud_msg_.is_dense = true;
 
   int image_index = 0;
@@ -790,7 +790,7 @@ void GazeboRosCamera::OnNewDepthFrame(
 
   IGN_PROFILE_BEGIN("publish cloud point");
 #endif
-  impl_->point_cloud_pub_->publish(impl_->cloud_msg_);
+  impl_->point_cloud_pub_->publish(std::move(impl_->cloud_msg_));
 #ifdef IGN_PROFILER_ENABLE
   IGN_PROFILE_END();
 #endif
